@@ -7,8 +7,10 @@ import { getTodos, addTodo } from "../lib/api";
 
 export default function App() {
   const [text, setText] = useState("");
-  const { data, mutate } = useSWR("/api/todos", getTodos);
+  const { data, mutate, error } = useSWR("/api/todos", getTodos);
 
+    if (error) return "An error has occurred.";
+    if (!data) return "Loading...";
   return (
     <div>
       <Toaster toastOptions={{ position: "bottom-center" }} />

@@ -11,7 +11,9 @@ export default function Home() {
 
       <main>
         <App />
+        
       </main>
+
 
       <style jsx>{`
         main {
