@@ -3,8 +3,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "tailwind": "npx tailwindcss -i ./pages/globals.css -o ./pages/dist/styles.css --watch"
+    "start": "next start"
   },
   "dependencies": {
     "next": "latest",
