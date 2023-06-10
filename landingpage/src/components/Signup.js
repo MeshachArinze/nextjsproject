@@ -1,6 +1,5 @@
 import React from "react";
 import Image from "next/image";
-import Link from "next/link";
 import Connect from "./Connect";
 import Footer from "./Footer";
 import Form from "./Form";
