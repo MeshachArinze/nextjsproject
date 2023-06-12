@@ -1,5 +1,5 @@
 import React from "react";
-import { authModalState } from "@/atom/authModalAuth";
+import { authModalState } from "@/atom/authModalAtom";
 import Image from "next/image";
 import Link from "next/link";
 import { useSetRecoilState } from "recoil";

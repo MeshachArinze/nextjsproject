@@ -1,4 +1,4 @@
-import { authModalState } from "@/atom/authModalAuth";
+import { authModalState } from "@/atom/authModalAtom";
 import { auth, firestore } from "@/firebase/firebase";
 import { useEffect, useState } from "react";
 import { useSetRecoilState } from "recoil";
@@ -10,67 +10,68 @@ import { toast } from "react-toastify";
 type SignupProps = {};
 
 const Signup: React.FC<SignupProps> = () => {
-    const setAuthModalState = useSetRecoilState(authModalState);
-    const handleClick = () => {
-        setAuthModalState((prev) => ({...prev, type: 'login'}));
+  const setAuthModalState = useSetRecoilState(authModalState);
+  const handleClick = () => {
+    setAuthModalState((prev) => ({ ...prev, type: "login" }));
+  };
+  const [inputs, setInputs] = useState({
+    email: "",
+    displayName: "",
+    password: "",
+  });
+
+  const router = useRouter();
+
+  const [createUserWithEmailAndPassword, user, loading, error] =
+    useCreateUserWithEmailAndPassword(auth);
+
+  const handleChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInputs((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (!inputs.email || !inputs.displayName || !inputs.password)
+      return alert("Please fill in the fileds");
+
+    try {
+      toast.loading("Creating your account", {
+        position: "top-center",
+        toastId: "loadingToast",
+      });
+
+      const newUser = await createUserWithEmailAndPassword(
+        inputs.email,
+        inputs.password
+      );
+      if (!newUser) return;
+
+      const userData = {
+        uid: newUser.user.uid,
+        email: newUser.user.email,
+        displayName: inputs.displayName,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        likedProblems: [],
+        dislikedProblems: [],
+        solvedProblems: [],
+        starredProblems: [],
+      };
+
+      await setDoc(doc(firestore, "users", newUser.user.uid), userData);
+
+      router.push("/");
+    } catch (error: any) {
+      toast.error(error.message, { position: "top-center" });
+    } finally {
+      toast.dismiss("loadingToast");
     }
-    const [inputs, setInputs] = useState({
-      email: "",
-      displayName: "",
-      password: "",
-    });
+  };
 
-    const router = useRouter();
-
-    const [createUserWithEmailAndPassword, user, loading, error] =
-      useCreateUserWithEmailAndPassword(auth);
-
-    const handleChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-      setInputs((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-    };
-
-    const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault()
-
-        if(!inputs.email || !inputs.displayName || !inputs.password) return alert('Please fill in the fileds')
-
-        try {
-          toast.loading("Creating your account", {
-            position: "top-center",
-            toastId: "loadingToast",
-          });
-
-          const newUser = await createUserWithEmailAndPassword(
-            inputs.email,
-            inputs.password
-          );
-          if (!newUser) return;
-
-          const userData = {
-            uid: newUser.user.uid,
-            email: newUser.user.email,
-            displayName: inputs.displayName,
-            createdAt: Date.now(),
-            updatedAt: Date.now(),
-            likedProblems: [],
-            dislikedProblems: [],
-            solvedProblems: [],
-            starredProblems: [],
-          };
-
-          await setDoc(doc(firestore, "users", newUser.user.uid), userData);
-
-          router.push("/");
-        } catch (error: any) {
-          toast.error(error.message, { position: "top-center" });
-        } finally {
-          toast.dismiss("loadingToast");
-        }
-    }
-
-    useEffect(() => {
-        if (error) alert(error.message);
-    }, [error]);
+  useEffect(() => {
+    if (error) alert(error.message);
+  }, [error]);
 
   return (
     <form className="space-y-6 px-6 pb-4" onSubmit={handleRegister}>
@@ -154,7 +155,6 @@ const Signup: React.FC<SignupProps> = () => {
       </div>
     </form>
   );
-
 };
 
 export default Signup;
